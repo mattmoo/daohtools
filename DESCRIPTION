@@ -1,0 +1,19 @@
+Package: daohtools
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Matthew",
+           family = "Moore",
+           role = c("aut", "cre"),
+           email = "matthew.moore@auckland.ac.nz")
+Description: What the package does (one paragraph).
+License: MIT
+Encoding: UTF-8
+LazyData: true
+Depends: 
+  data.table (>= 1.12.0)
+Imports: 
+  data.table (>= 1.12.0),
+  ggplot2 (>= 3.1.0),
+  fasttime (>= 1.0.2)
+RoxygenNote: 6.1.1
