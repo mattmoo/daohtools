@@ -482,10 +482,9 @@ generate.site.tsd = function(this.site.dt,
                              smooth.func = smooth.daoh,
                              site = NULL) {
   
-  print(1)
   total.time.length = floor((this.site.dt[,max(time)] - this.site.dt[,min(time)]))
   
-  print(2)
+  
   tsd = generate.timed.sampling.dist(input.dt = this.site.dt,
                                      outcome.col.name = outcome.col.name,
                                      n.sampling.period = n.sampling.period,
@@ -496,7 +495,6 @@ generate.site.tsd = function(this.site.dt,
                                      smooth.func = smooth.func,
                                      values = values)
   
-  print(3)
   if(!is.null(site)) {
     site$set.timed.sampling.dist(tsd)
     site$set.sim.ppt.per.unit.time(nrow(this.site.dt)/total.time.length)
