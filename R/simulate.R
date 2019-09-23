@@ -481,9 +481,11 @@ generate.site.tsd = function(this.site.dt,
                              values = 0:89,
                              smooth.func = smooth.daoh,
                              site = NULL) {
-
+  
+  print(1)
   total.time.length = floor((this.site.dt[,max(time)] - this.site.dt[,min(time)]))
-
+  
+  print(2)
   tsd = generate.timed.sampling.dist(input.dt = this.site.dt,
                                      outcome.col.name = outcome.col.name,
                                      n.sampling.period = n.sampling.period,
@@ -493,7 +495,8 @@ generate.site.tsd = function(this.site.dt,
                                      sampling.period.out.length = sampling.period.out.length,
                                      smooth.func = smooth.func,
                                      values = values)
-
+  
+  print(3)
   if(!is.null(site)) {
     site$set.timed.sampling.dist(tsd)
     site$set.sim.ppt.per.unit.time(nrow(this.site.dt)/total.time.length)
@@ -505,7 +508,7 @@ generate.site.tsd = function(this.site.dt,
 #' Generate timed sampling distributions for all sites in a
 #'
 #' @param input.dt Data for all sites as data.table
-#' @param facility.dt Data.table about facilities and their clusters.
+#' @param site.dt Data.table about sites and their clusters.
 #' @param cluster.dt Data.table about clusters and when they start/stop
 #' @param n.sampling.period How many periods should the distribution be divided
 #'   into?
@@ -521,30 +524,30 @@ generate.site.tsd = function(this.site.dt,
 #'   site by reference)
 #'
 #' @export
-generate.all.site.tsds = function(input.dt, facility.dt, cluster.dt, n.sampling.period, outcome.col.name, values = 0:89, smooth.func = smooth.daoh, output.to.console = F) {
+generate.all.site.tsds = function(input.dt, site.dt, cluster.dt, n.sampling.period, outcome.col.name, values = 0:89, smooth.func = smooth.daoh, output.to.console = F) {
 
-  facility.cluster.dt = merge(facility.dt, cluster.dt, by = 'cluster.id') #Merge implementation dates onto facilities
-  # for (facility.ind in 9:9) {
-  for (facility.ind in 1:nrow(facility.dt)) {
+  site.cluster.dt = merge(site.dt, cluster.dt, by = 'cluster.id') #Merge implementation dates onto sites
+  # for (site.ind in 9:9) {
+  for (site.ind in 1:nrow(site.dt)) {
     if (output.to.console) {
-      message(facility.ind)
-      message(facility.cluster.dt[facility.ind, facility.id])
-      message(facility.cluster.dt[facility.ind, facility.name])
+      message(site.ind)
+      message(site.cluster.dt[site.ind, site.id])
+      message(site.cluster.dt[site.ind, site.name])
     }
-    this.site.dt = input.dt[facility.id == facility.cluster.dt[facility.ind, facility.id]]
+    this.site.dt = input.dt[site.id == site.cluster.dt[site.ind, site.id]]
     if (nrow(this.site.dt) == 0) {
-      ms = paste0("No data for ", facility.cluster.dt[facility.ind, facility.name], ' (', facility.cluster.dt[facility.ind, facility.id], ')')
+      ms = paste0("No data for ", site.cluster.dt[site.ind, site.name], ' (', site.cluster.dt[site.ind, site.id], ')')
       message(ms)
       warning(ms)
       next
     }
 
-    cl.id = facility.cluster.dt[facility.ind, cluster.id]
+    cl.id = site.cluster.dt[site.ind, cluster.id]
 
-    site = facility.cluster.dt[facility.ind, site.obj][[1]]
+    site = site.cluster.dt[site.ind, site.obj][[1]]
 
-    sampling.period.out.start = as.numeric(facility.cluster.dt[facility.ind, cluster.start.time])
-    sampling.period.out.length = floor((facility.cluster.dt[facility.ind, cluster.end.time] - facility.cluster.dt[facility.ind, cluster.start.time])/n.sampling.period)
+    sampling.period.out.start = as.numeric(site.cluster.dt[site.ind, cluster.start.time])
+    sampling.period.out.length = floor((site.cluster.dt[site.ind, cluster.end.time] - site.cluster.dt[site.ind, cluster.start.time])/n.sampling.period)
 
     print(sampling.period.out.start)
     print(sampling.period.out.length)
