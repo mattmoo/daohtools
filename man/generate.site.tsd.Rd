@@ -4,9 +4,16 @@
 \alias{generate.site.tsd}
 \title{Generate the timed sampling distributions from real data.}
 \usage{
-generate.site.tsd(this.site.dt, n.sampling.period, outcome.col.name,
-  sampling.period.out.start, sampling.period.out.length, values = 0:89,
-  smooth.func = smooth.daoh, site = NULL)
+generate.site.tsd(
+  this.site.dt,
+  n.sampling.period,
+  outcome.col.name,
+  sampling.period.out.start,
+  sampling.period.out.length,
+  values = 0:89,
+  smooth.func = smooth.daoh,
+  site = NULL
+)
 }
 \arguments{
 \item{this.site.dt}{The data as a data.table, with time and outcome columns.}

@@ -5,10 +5,17 @@
 \title{Modify a DAOH distribution, until at.quantile is target.quantile.val.
 Uses data.table so that things can be done by reference.}
 \usage{
-modify.daoh.distribution(x = 0:90, prob = rep(1, 90),
-  target.quantile.val = NULL, relative.quantile.val = NULL,
-  at.quantile = 0.5, multiple.per.step = 0.01, output.to.console = T,
-  empirical.dist = F, n.emp = 1e+05)
+modify.daoh.distribution(
+  x = 0:90,
+  prob = rep(1, 90),
+  target.quantile.val = NULL,
+  relative.quantile.val = NULL,
+  at.quantile = 0.5,
+  multiple.per.step = 0.01,
+  output.to.console = T,
+  empirical.dist = F,
+  n.emp = 1e+05
+)
 }
 \arguments{
 \item{x}{Possible values for daoh}

@@ -1,4 +1,5 @@
-#' Plot DAOH in a histogram
+#' Generates a smoothed sampling distribution (attempting to eliminate lumps
+#' from undersampling, especially of intermediate values) from which 
 #'
 #' @param input.dist The DAOH dataset on which to base the sampling
 #'   distribution, as a vector.
@@ -7,7 +8,9 @@
 #' @return ggplot2 plot
 #'
 #' @export
-generate.smoothed.sampling.dist = function(input.dist, values = NULL, smooth.func = smooth.daoh) {
+generate.smoothed.sampling.dist = function(input.dist, 
+                                           values = NULL, 
+                                           smooth.func = smooth.daoh) {
 
 
   #Count outcome including zeroes
@@ -547,8 +550,6 @@ generate.all.site.tsds = function(input.dt, site.dt, cluster.dt, n.sampling.peri
     sampling.period.out.start = as.numeric(site.cluster.dt[site.ind, cluster.start.time])
     sampling.period.out.length = floor((site.cluster.dt[site.ind, cluster.end.time] - site.cluster.dt[site.ind, cluster.start.time])/n.sampling.period)
 
-    print(sampling.period.out.start)
-    print(sampling.period.out.length)
 
 
     generate.site.tsd(

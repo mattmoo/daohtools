@@ -2,10 +2,14 @@
 % Please edit documentation in R/simulate.R
 \name{generate.smoothed.sampling.dist}
 \alias{generate.smoothed.sampling.dist}
-\title{Plot DAOH in a histogram}
+\title{Generates a smoothed sampling distribution (attempting to eliminate lumps
+from undersampling, especially of intermediate values) from which}
 \usage{
-generate.smoothed.sampling.dist(input.dist, values = NULL,
-  smooth.func = smooth.daoh)
+generate.smoothed.sampling.dist(
+  input.dist,
+  values = NULL,
+  smooth.func = smooth.daoh
+)
 }
 \arguments{
 \item{input.dist}{The DAOH dataset on which to base the sampling
@@ -18,5 +22,6 @@ min(input.dist):max(input.dist), which will fail if not integer input)}
 ggplot2 plot
 }
 \description{
-Plot DAOH in a histogram
+Generates a smoothed sampling distribution (attempting to eliminate lumps
+from undersampling, especially of intermediate values) from which
 }

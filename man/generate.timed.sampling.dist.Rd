@@ -5,11 +5,17 @@
 \title{Generate a timed.sampling.dist object from an input distribution (with
 timings obvs)}
 \usage{
-generate.timed.sampling.dist(input.dt, outcome.col.name,
-  n.sampling.period = 1, sampling.period.in.start = NULL,
-  sampling.period.in.length = NULL, sampling.period.out.start = NULL,
-  sampling.period.out.length = NULL, smooth.func = smooth.daoh,
-  values = NULL)
+generate.timed.sampling.dist(
+  input.dt,
+  outcome.col.name,
+  n.sampling.period = 1,
+  sampling.period.in.start = NULL,
+  sampling.period.in.length = NULL,
+  sampling.period.out.start = NULL,
+  sampling.period.out.length = NULL,
+  smooth.func = smooth.daoh,
+  values = NULL
+)
 }
 \arguments{
 \item{input.dt}{The (data.table) input distribution to emulate with outcome
@@ -25,17 +31,14 @@ Should be integer.}
 \item{sampling.period.in.length}{How long should each time period be in the
 output? Should be integer.}
 
-\item{sampling.period.out.start}{At what time should the probability
-distribution in the output start? Should be integer.}
+\item{sampling.period.out.start}{How long should each period be in the
+output? Should be integer.}
 
 \item{smooth.func}{What function should be used for smoothing? Mainly made
 for DAOH, so that's default. Should be integer.}
 
 \item{values}{The value that can the sampling distribution can take (default
 min(input.dist):max(input.dist), which will fail if not integer input)}
-
-\item{sampling.period.out.start}{How long should each period be in the
-output? Should be integer.}
 }
 \value{
 A Timed.Sampling.Dist object

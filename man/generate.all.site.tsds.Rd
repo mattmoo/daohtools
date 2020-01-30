@@ -4,9 +4,16 @@
 \alias{generate.all.site.tsds}
 \title{Generate timed sampling distributions for all sites in a}
 \usage{
-generate.all.site.tsds(input.dt, site.dt, cluster.dt, n.sampling.period,
-  outcome.col.name, values = 0:89, smooth.func = smooth.daoh,
-  output.to.console = F)
+generate.all.site.tsds(
+  input.dt,
+  site.dt,
+  cluster.dt,
+  n.sampling.period,
+  outcome.col.name,
+  values = 0:89,
+  smooth.func = smooth.daoh,
+  output.to.console = F
+)
 }
 \arguments{
 \item{input.dt}{Data for all sites as data.table}

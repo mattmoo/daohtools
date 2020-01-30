@@ -4,8 +4,14 @@
 \alias{modify.timed.daoh.distribution}
 \title{Modify a timed DAOH distribution.}
 \usage{
-modify.timed.daoh.distribution(tsd, mod.time.begin, mod.time.end,
-  target.quantile.val = NULL, relative.quantile.val = NULL, ...)
+modify.timed.daoh.distribution(
+  tsd,
+  mod.time.begin,
+  mod.time.end,
+  target.quantile.val = NULL,
+  relative.quantile.val = NULL,
+  ...
+)
 }
 \arguments{
 \item{tsd}{The Timed.Sampling.Distribution object.}
