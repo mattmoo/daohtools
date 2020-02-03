@@ -72,6 +72,19 @@ encrypt.col = function(input.file.path,
   #Read in data
   input.dt = fread(input.file.path)
   
+  #Check col.names are present
+  if (!all(col.names %in% colnames(input.dt))) {
+    warning(paste0('Column names not found in ',
+                   input.file.name,
+                   ':',
+                   paste0(col.names[col.names %in% colnames(input.dt)]), collapse = ', ')
+            )
+    col.names = col.names[col.names %in% colnames(input.dt)]
+    if (length(col.names) == 0) {
+      return()
+    }
+  }
+  
   for (col.name in col.names) {
     #Check if string and get column.
     if (!is.character(input.dt[,get(col.name)])) {
@@ -81,14 +94,14 @@ encrypt.col = function(input.file.path,
     #Make new column name, check if it exists
     new.col.name = paste0(col.name, encrypted.column.suffix)
     if (new.col.name %in% names(input.dt)) {
-      stop(paste('Column', new.col.name, encrypted.column.suffix))
+      stop(paste('Column', new.col.name, ' already exists.'))
     }
     
     
     #Create column for encrypted data
     data.table::set(
       lookup.dt,
-      j = paste0(col.name, encrypted.column.suffix),
+      j = new.col.name,
       value = NA_character_)
     
     #Helper function that encrypts a single row.
@@ -98,6 +111,8 @@ encrypt.col = function(input.file.path,
                       j = paste0(col.name, encrypted.column.suffix),
                       value = safer::encrypt_string(lookup.dt[row.ind,get(col.name)],
                                                     key = password))
+      
+      return(NULL)
     }
     
     if (output.to.console) {
@@ -112,8 +127,9 @@ encrypt.col = function(input.file.path,
            FUN = encrypt.row.ind)
     #Encrypt in input
     new.col.vals = data.table:::merge.data.table(x = input.dt,
-                                                  y = lookup.dt,
-                                                  by = col.name)[,new.col.name, with = F]
+                                                 y = lookup.dt,
+                                                 by = col.name,
+                                                 sort = F)[,new.col.name, with = F]
     data.table::set(x = input.dt,
                     j = col.name,
                     value = new.col.vals)
