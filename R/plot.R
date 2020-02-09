@@ -1,10 +1,8 @@
-#This file doesn't show up!
-
-
 #' Plot DAOH in a histogram
 #'
 #' @param input.dt The DAOH data (with daoh column)
 #' @param by.group The group (string) by which to separate the histograms.
+#' 
 #' @return ggplot2 plot
 #'
 #' @export
@@ -58,6 +56,7 @@ plot.daoh.histogram = function(input.dt, by.group = NA_character_) {
 #'
 #' @param input.dt The DAOH data (with daoh column)
 #' @param by.group The group (string) by which to separate the histograms.
+#' 
 #' @return ggplot2 plot
 #'
 #' @export
@@ -98,10 +97,12 @@ plot.daoh.density = function(input.dt, by.group = NA_character_, xlimits = c(0,9
 }
 
 #' Plot the distribution by drawing from it heaps.
+#' 
 #' @param x The values in the distribution
 #' @param prob The probability that the value will be drawn.
 #' @param n The number of points to sample. It actually has to be pretty high
 #'   for DAOH, about 1e8 (10,000,000)
+#' 
 #' @return ggplot2 plot
 #'
 #' @export
