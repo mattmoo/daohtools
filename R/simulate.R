@@ -290,8 +290,8 @@ modify.daoh.distribution = function(x = 0:90,
 #' @param prob The weights (same length as values).
 #' @param quantile The quantile to find.
 #' @return Value at requested quantile.
-#'
-#' @export
+#' 
+#' @export quantile.dist
 quantile.dist = function(x, prob, quantile = 0.5) {
   cs = cumsum(prob)/sum(prob)
   csq = cs-quantile
@@ -306,7 +306,7 @@ quantile.dist = function(x, prob, quantile = 0.5) {
 #' @param n The number of random values to generate.
 #' @return Value at requested quantile.
 #'
-#' @export
+#' @export quantile.dist.emp
 quantile.dist.emp = function(x, prob, quantile = 0.5, n=1000000) {
   unname(quantile(sample(x = x, prob = prob, size = n, replace = T), probs = quantile))
 }

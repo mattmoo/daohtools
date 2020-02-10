@@ -212,7 +212,7 @@ detect.overlapping.events = function(daoh.event.dt,
 #'   admissions found within the DAOH period of that index event, cropped so
 #'   that they are not outside the DAOH limits, or overlapping patient death.
 #'
-#' @export
+#' @export merge.and.crop.events
 merge.and.crop.events = function(daoh.event.dt,
                                  patient.dt,
                                  patient.id.col.name = 'PRIM_HCU.IDencrypted',

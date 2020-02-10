@@ -5,7 +5,7 @@
 #' 
 #' @return ggplot2 plot
 #'
-#' @export
+#' @export plot.daoh.histogram
 plot.daoh.histogram = function(input.dt, by.group = NA_character_) {
 
 
@@ -59,7 +59,7 @@ plot.daoh.histogram = function(input.dt, by.group = NA_character_) {
 #' 
 #' @return ggplot2 plot
 #'
-#' @export
+#' @export plot.daoh.density
 plot.daoh.density = function(input.dt, by.group = NA_character_, xlimits = c(0,90), adjust = 1.5) {
   
   
@@ -105,7 +105,7 @@ plot.daoh.density = function(input.dt, by.group = NA_character_, xlimits = c(0,9
 #' 
 #' @return ggplot2 plot
 #'
-#' @export
+#' @export plot.distribution
 plot.distribution = function(x, prob, n = 1e8) {
   daoh = sample(x = x, prob = prob, size = n, replace = T)
   p = plot.daoh.histogram(data.table(daoh = daoh))
