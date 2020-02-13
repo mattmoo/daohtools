@@ -2,11 +2,12 @@
 #'
 #' @param input.dt The DAOH data (with daoh column)
 #' @param by.group The group (string) by which to separate the histograms.
+#' @param xlimits Length two numeric vector of xlimits..
 #' 
 #' @return ggplot2 plot
 #'
 #' @export plot.daoh.histogram
-plot.daoh.histogram = function(input.dt, by.group = NA_character_) {
+plot.daoh.histogram = function(input.dt, by.group = NA_character_, xlimits = c(0,90)) {
 
 
   #Graph display properties
@@ -26,17 +27,17 @@ plot.daoh.histogram = function(input.dt, by.group = NA_character_) {
                                                     breaks = ybreaks,
                                                     expand = c(0.001, 0.001))
 
-  x.breaks =  seq(0,90,by=15)
+  x.breaks =  seq(xlimits[1],xlimits[2],by=15)
   x.scale = ggplot2::scale_x_continuous(breaks = x.breaks, expand = c(0.01, 0.1))
 
 
   if (!is.na(by.group)) {
-    p = ggplot2::ggplot(input.dt, ggplot2::aes(x=daoh, fill=get(by.group), y=4*(..density..)/sum(..density..))) +
+    p = ggplot2::ggplot(input.dt, ggplot2::aes(x=daoh, fill=get(by.group), y=((..count..)/sum(..count..)))) +
       ggplot2::geom_histogram(alpha=.35,
                               position="identity",
                               bins=histogramBins)
   } else {
-    p = ggplot2::ggplot(input.dt, ggplot2::aes(x=daoh, y=2*(..density..)/sum(..density..))) +
+    p = ggplot2::ggplot(input.dt, ggplot2::aes(x=daoh, y=((..count..)/sum(..count..)))) +
       ggplot2::geom_histogram(alpha=.75,
                               position="identity",
                               bins=histogramBins)
@@ -56,6 +57,7 @@ plot.daoh.histogram = function(input.dt, by.group = NA_character_) {
 #'
 #' @param input.dt The DAOH data (with daoh column)
 #' @param by.group The group (string) by which to separate the histograms.
+#' @param xlimits Length two numeric vector of xlimits..
 #' 
 #' @return ggplot2 plot
 #'
@@ -64,11 +66,14 @@ plot.daoh.density = function(input.dt, by.group = NA_character_, xlimits = c(0,9
   
   
   ybreaks =  c(0, 0.001, 0.0025,0.005,0.01,0.02,0.03,0.04,0.05,0.075,seq(from=0.1, to = .5, by = 0.05),seq(from=0.6, to = 1, by = 0.1))
+  NRPercent <- function(x) {
+    paste0(sapply(x, scales::percent_format(accuracy = 0.1)))
+  }
   transformed.y.scale = ggplot2::scale_y_continuous(trans=scales::trans_new("mysqrt",
                                                                             transform = base::sqrt,
                                                                             inverse = function(x) ifelse(x<0, 0, x^2),
                                                                             domain = c(0, Inf)),
-                                                    # label = NRPercent,
+                                                    label = NRPercent,
                                                     minor_breaks = NULL,
                                                     breaks = ybreaks,
                                                     expand = c(0.001, 0.001))

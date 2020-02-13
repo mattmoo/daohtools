@@ -4,12 +4,14 @@
 \alias{plot.daoh.histogram}
 \title{Plot DAOH in a histogram}
 \usage{
-\method{plot}{daoh.histogram}(input.dt, by.group = NA_character_)
+\method{plot}{daoh.histogram}(input.dt, by.group = NA_character_, xlimits = c(0, 90))
 }
 \arguments{
 \item{input.dt}{The DAOH data (with daoh column)}
 
 \item{by.group}{The group (string) by which to separate the histograms.}
+
+\item{xlimits}{Length two numeric vector of xlimits..}
 }
 \value{
 ggplot2 plot

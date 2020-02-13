@@ -10,6 +10,8 @@
 \item{input.dt}{The DAOH data (with daoh column)}
 
 \item{by.group}{The group (string) by which to separate the histograms.}
+
+\item{xlimits}{Length two numeric vector of xlimits..}
 }
 \value{
 ggplot2 plot
