@@ -12,6 +12,8 @@
 #'   (Default: 'PRIM_HCU.IDencrypted')
 #' @param index.event.id.col.name Character name of the index event identifier
 #'   column (Default: 'index.event.id')
+#' @param index.event.date.col.name Character name of the index event date
+#'   column (Default: 'OP_ACDTE')
 #' @param admission.start.col.name Character name of the column containing
 #'   admission start dates (Default: 'EVSTDATE')
 #' @param admission.end.col.name Character name of the column containing
@@ -32,6 +34,7 @@ prune.events.to.period = function(index.op.dt,
                                   daoh.limits,
                                   patient.id.col.name = 'PRIM_HCU.IDencrypted',
                                   index.event.id.col.name = 'index.event.id',
+                                  index.event.date.col.name = 'OP_ACDTE',
                                   admission.start.col.name = 'EVSTDATE',
                                   admission.end.col.name = 'EVENDATE',
                                   daoh.period.start.col.name = 'daoh.period.start',
@@ -40,10 +43,10 @@ prune.events.to.period = function(index.op.dt,
   #Generate DAOH limits
   data.table::set(x = index.op.dt,
                   j = daoh.period.start.col.name,
-                  value = index.op.dt[,OP_ACDTE + daoh.limits[1]])
+                  value = index.op.dt[,get(index.event.date.col.name) + daoh.limits[1]])
   data.table::set(x = index.op.dt,
                   j = daoh.period.end.col.name,
-                  value = index.op.dt[,OP_ACDTE + daoh.limits[2]])
+                  value = index.op.dt[,get(index.event.date.col.name) + daoh.limits[2]])
   
   #Set keys with which to find overlaps
   data.table::setkeyv(
@@ -284,6 +287,8 @@ merge.and.crop.events = function(daoh.event.dt,
 #'   (Default: 'PRIM_HCU.IDencrypted')
 #' @param index.event.id.col.name Character name of the index event identifier
 #'   column (Default: 'index.event.id')
+#' @param index.event.date.col.name Character name of the index event date
+#'   column (Default: 'OP_ACDTE')
 #' @param admission.start.col.name Character name of the column containing
 #'   admission start dates (Default: 'EVSTDATE')
 #' @param admission.end.col.name Character name of the column containing
@@ -308,6 +313,7 @@ consolidate.events = function(index.op.dt,
                               daoh.limits,
                               patient.id.col.name = 'PRIM_HCU.IDencrypted',
                               index.event.id.col.name = 'index.event.id',
+                              index.event.date.col.name = 'OP_ACDTE',
                               admission.start.col.name = 'EVSTDATE',
                               admission.end.col.name = 'EVENDATE',
                               daoh.period.start.col.name = 'daoh.period.start',
@@ -320,6 +326,7 @@ consolidate.events = function(index.op.dt,
                                          event.dt = event.dt,
                                          patient.id.col.name = patient.id.col.name,
                                          index.event.id.col.name = index.event.id.col.name,
+                                         index.event.date.col.name = index.event.date.col.name,
                                          admission.start.col.name = admission.start.col.name,
                                          admission.end.col.name = admission.end.col.name,
                                          daoh.period.start.col.name = daoh.period.start.col.name,

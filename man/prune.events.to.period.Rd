@@ -11,6 +11,7 @@ prune.events.to.period(
   daoh.limits,
   patient.id.col.name = "PRIM_HCU.IDencrypted",
   index.event.id.col.name = "index.event.id",
+  index.event.date.col.name = "OP_ACDTE",
   admission.start.col.name = "EVSTDATE",
   admission.end.col.name = "EVENDATE",
   daoh.period.start.col.name = "daoh.period.start",
@@ -33,6 +34,9 @@ relative to the index event.}
 
 \item{index.event.id.col.name}{Character name of the index event identifier
 column (Default: 'index.event.id')}
+
+\item{index.event.date.col.name}{Character name of the index event date
+column (Default: 'OP_ACDTE')}
 
 \item{admission.start.col.name}{Character name of the column containing
 admission start dates (Default: 'EVSTDATE')}

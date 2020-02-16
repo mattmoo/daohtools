@@ -12,7 +12,7 @@ plot.daoh.histogram = function(input.dt, by.group = NA_character_, xlimits = c(0
 
   #Graph display properties
   figureTextSize = 12
-  histogramBins = 90
+  histogramBins = xlimits[1] - xlimits[0] + 1
   NRPercent <- function(x) {
     paste0(sapply(x, scales::percent_format(accuracy = 0.1)))
   }
@@ -28,7 +28,7 @@ plot.daoh.histogram = function(input.dt, by.group = NA_character_, xlimits = c(0
                                                     expand = c(0.001, 0.001))
 
   x.breaks =  seq(xlimits[1],xlimits[2],by=15)
-  x.scale = ggplot2::scale_x_continuous(breaks = x.breaks, expand = c(0.01, 0.1))
+  x.scale = ggplot2::scale_x_continuous(breaks = x.breaks, expand = c(0.01, 0.1), limits = xlimits)
 
 
   if (!is.na(by.group)) {
