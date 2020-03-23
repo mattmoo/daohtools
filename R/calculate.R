@@ -467,7 +467,7 @@ calculate.dd = function(index.op.dt,
 }
 
 
-#' Calculcates the number of days each patient spent alive and out of hospital
+#' Calculates the number of days each patient spent alive and out of hospital
 #' during the DAOH period of each index event. Applies calculate.dih and
 #' calculate.dd, then sums.
 #'

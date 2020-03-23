@@ -1,7 +1,9 @@
 #' Encrypts a column (or columns) from a file, with a given password, generates
 #' lookup tables, and zips the tables into an encrypted zip file with the
 #' password. Files are (optionally) saved to a timestamped directory, and a
-#' timestamped zip file is then (optionally) generated. The data with encrypted ID columns will be saved to the specified path, with the same file name as the original, but 
+#' timestamped zip file is then (optionally) generated. The data with encrypted
+#' ID columns will be saved to the specified path, with the same file name as
+#' the original, but
 #'
 #' It's your responsibility to securely erase the identifiable data. Use
 #' something that specifically overwrites it, your operating system will not do
@@ -21,11 +23,11 @@
 #' @param table.save.dir Character directory to save table with encrypted data
 #'   to (Default: same as input)
 #' @param lookup.save.dir Character directory to save lookup tables to (Default:
-#'   '.' i.e. working directory)
+#'   same as input)
 #' @param encrypted.column.suffix Character to append to original column names
 #'   to indicate that they are encrypted. (Default: '.IDencrypted')
-#' @param encrypted.file.suffix Character to append to original file names
-#'   to indicate that they are encrypted. (Default: '_IDencrypted')
+#' @param encrypted.file.suffix Character to append to original file names to
+#'   indicate that they are encrypted. (Default: '_IDencrypted')
 #' @param output.to.console Say what's going on in the console (Default: T)
 #'
 #' @export
@@ -37,20 +39,24 @@ encrypt.col = function(input.file.path,
                        save.password = T,
                        save.zip = T,
                        table.save.dir = NULL,
-                       lookup.save.dir = '.',
+                       lookup.save.dir = NULL,
                        encrypted.column.suffix = '.IDencrypted',
                        encrypted.file.suffix = '_IDencrypted',
                        output.to.console = T) {
   
   time.stamp = format(Sys.time(), "%Y-%m-%d-%H%M%S")
   
+  #Set output of encrypted data to same as input if another directory is not provided.
+  if (is.null(lookup.save.dir)) {
+    lookup.save.dir = dirname(input.file.path)
+  }
   lookup.save.dir.files = file.path(lookup.save.dir, time.stamp)
-  dir.create(lookup.save.dir.files)
   
   #Generate output file name
   input.dir = dirname(input.file.path)
   input.file.name = basename(input.file.path)
   input.file.name.sans.ext = tools::file_path_sans_ext(input.file.name)
+  
   #Set output of encrypted data to same as input if another directory is not provided.
   if (is.null(table.save.dir)) {
     table.save.dir = dirname(input.file.path)
@@ -86,6 +92,9 @@ encrypt.col = function(input.file.path,
   }
   
   for (col.name in col.names) {
+    #Get original column names for testing.
+    input.dt.orig = copy(input.dt)
+    
     #Check if string and get column.
     if (!is.character(input.dt[,get(col.name)])) {
       stop(paste('Column', new.col.name, 'was detected as not being a character.'))
@@ -96,7 +105,6 @@ encrypt.col = function(input.file.path,
     if (new.col.name %in% names(input.dt)) {
       stop(paste('Column', new.col.name, ' already exists.'))
     }
-    
     
     #Create column for encrypted data
     data.table::set(
@@ -137,12 +145,35 @@ encrypt.col = function(input.file.path,
                          old = col.name,
                          new = new.col.name)
     
+    #Test data to see if decrypting will result in the input data.table.
+    if (output.to.console) {
+      message('Testing encryption.')
+    }
+    test.dt = data.table:::merge.data.table(x = input.dt,
+                                            y = lookup.dt,
+                                            by = new.col.name,
+                                            sort = F)
+    data.table::set(x = test.dt,
+                    j = new.col.name,
+                    value = NULL)
+    data.table::setcolorder(x = test.dt,
+                            neworder = colnames(input.dt.orig))
+    equal.test = all.equal(test.dt, input.dt.orig)
+    if (equal.test == T) {
+      message('Success!')
+    } else {
+      message('Decryption did not reproduce input with message:')
+      message(equal.test)
+      stop(paste0('Encryption test failed :('))
+    }
+    
     if (output.to.console) {
       message('Done.')
     }
     
     #Save lookup table if requested.
     if (save.lookup.table) {
+      dir.create(lookup.save.dir.files, recursive = T)
       lookup.dt.path = file.path(lookup.save.dir.files,
                                  paste0(input.file.name.sans.ext,
                                         '_',
@@ -197,6 +228,7 @@ encrypt.col = function(input.file.path,
   
   #Save zip file
   if (length(save.zip.files) > 0) {
+    print(save.zip.files)
     zip.path = file.path(lookup.save.dir, 
                          paste0(input.file.name.sans.ext,
                                 '_',
@@ -207,7 +239,7 @@ encrypt.col = function(input.file.path,
     
     utils::zip(zip.path,
                files = save.zip.files,
-               flags = paste("--password", password))
+               flags = paste("--password", password, "-j"))
   }
   
   #Save encrypted data if requested, and path provided.
@@ -227,5 +259,44 @@ encrypt.col = function(input.file.path,
       warning('Requested saving of output, but no path provided.')
     }
   }
+}
+sas
+#' Encrypts a column (or columns) from a file, with a given password, generates
+#' lookup tables, and zips the tables into an encrypted zip file with the
+#' password. Files are (optionally) saved to a timestamped directory, and a
+#' timestamped zip file is then (optionally) generated. The data with encrypted
+#' ID columns will be saved to the specified path, with the same file name as
+#' the original, but
+#'
+#' It's your responsibility to securely erase the identifiable data. Use
+#' something that specifically overwrites it, your operating system will not do
+#' that by default.
+#'
+#' @param input.file.path Character file path readable by data.table::fread
+#'   encrypted by encrypt.col.
+#' @param lookup.table.zip.path Path to zipped password encrypted lookup table
+#'   generated by encrypt.col.
+#' @param output.file.suffix Character suffix to be added to encrypted file name
+#'   (Default: '_Decrypted')
+#' @param output.file.path Character path where the decrypted output will be
+#'   stored, same as input if NULL (Default: NULL)
+#' @param password The password with which to decrypt. If NULL, the user will be
+#'   prompted. Probably not best practice to store this unencrypted in scripts.
+#'   Could maybe move to certificates one day. (Default: NULL)
+#' @param output.to.console Say what's going on in the console (Default: T)
+#'
+#' @export
+decrypt.col = function(input.file.path,
+                       lookup.table.zip.path,
+                       output.file.suffix = '_Decrypted',
+                       output.file.dir = NULL,
+                       password = NULL,
+                       output.to.console = T) {
+
+  if (is.null(output.file.dir)) {
+    output.file.dir = dirname(encrypted.input.file.path)
+  }
   
+  zipped.file.list = unzip(lookup.table.zip.path, list = T)
+
 }
