@@ -2,7 +2,7 @@
 % Please edit documentation in R/calculate.R
 \name{calculate.daoh}
 \alias{calculate.daoh}
-\title{Calculcates the number of days each patient spent alive and out of hospital
+\title{Calculates the number of days each patient spent alive and out of hospital
 during the DAOH period of each index event. Applies calculate.dih and
 calculate.dd, then sums.}
 \usage{
@@ -60,7 +60,7 @@ A data.table that is index.op.dt, but with columns for days dead,
   necessary to use the output.
 }
 \description{
-Calculcates the number of days each patient spent alive and out of hospital
+Calculates the number of days each patient spent alive and out of hospital
 during the DAOH period of each index event. Applies calculate.dih and
 calculate.dd, then sums.
 }

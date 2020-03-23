@@ -5,18 +5,20 @@
 \title{Encrypts a column (or columns) from a file, with a given password, generates
 lookup tables, and zips the tables into an encrypted zip file with the
 password. Files are (optionally) saved to a timestamped directory, and a
-timestamped zip file is then (optionally) generated. The data with encrypted ID columns will be saved to the specified path, with the same file name as the original, but}
+timestamped zip file is then (optionally) generated. The data with encrypted
+ID columns will be saved to the specified path, with the same file name as
+the original, but}
 \usage{
 encrypt.col(
   input.file.path,
   col.names,
-  password = "password",
+  password = NULL,
   save.encrypted.table = T,
   save.lookup.table = T,
   save.password = T,
   save.zip = T,
   table.save.dir = NULL,
-  lookup.save.dir = ".",
+  lookup.save.dir = NULL,
   encrypted.column.suffix = ".IDencrypted",
   encrypted.file.suffix = "_IDencrypted",
   output.to.console = T
@@ -27,7 +29,9 @@ encrypt.col(
 
 \item{col.names}{Character vector of columns to encrypt.}
 
-\item{password}{The password with which to encrypt (Default: 'password')}
+\item{password}{The password with which to encrypt. If NULL, the user will be
+prompted. Probably not best practice to store this unencrypted in scripts.
+Could maybe move to certificates one day. (Default: NULL)}
 
 \item{save.encrypted.table}{Save encrypted data as CSV to table.save.path
 (Default: T)}
@@ -45,13 +49,13 @@ Windows PATH (Default: T)}
 to (Default: same as input)}
 
 \item{lookup.save.dir}{Character directory to save lookup tables to (Default:
-'.' i.e. working directory)}
+same as input)}
 
 \item{encrypted.column.suffix}{Character to append to original column names
 to indicate that they are encrypted. (Default: '.IDencrypted')}
 
-\item{encrypted.file.suffix}{Character to append to original file names
-to indicate that they are encrypted. (Default: '_IDencrypted')}
+\item{encrypted.file.suffix}{Character to append to original file names to
+indicate that they are encrypted. (Default: '_IDencrypted')}
 
 \item{output.to.console}{Say what's going on in the console (Default: T)}
 }
