@@ -510,6 +510,7 @@ calculate.daoh = function(index.op.dt,
                           index.event.id.col.name = 'index.event.id',
                           cropped.admission.start.col.name = 'cropped.admission.start',
                           cropped.admission.end.col.name = 'cropped.admission.end',
+                          daoh.period.start.col.name = 'daoh.period.start',
                           daoh.period.end.col.name = 'daoh.period.end',
                           dod.col.name = 'DOD') {
   
@@ -531,5 +532,5 @@ calculate.daoh = function(index.op.dt,
   #Calculate DAOH
   data.table::set(x = index.op.dt,
                   j = 'daoh',
-                  value = index.op.dt[,(daoh.limits[2]-daoh.limits[1]+1) - (dd + dih)])
+                  value = index.op.dt[,(get(daoh.period.end.col.name)-get(daoh.period.start.col.name)+1) - (dd + dih)])
 }

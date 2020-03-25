@@ -14,6 +14,7 @@ calculate.daoh(
   index.event.id.col.name = "index.event.id",
   cropped.admission.start.col.name = "cropped.admission.start",
   cropped.admission.end.col.name = "cropped.admission.end",
+  daoh.period.start.col.name = "daoh.period.start",
   daoh.period.end.col.name = "daoh.period.end",
   dod.col.name = "DOD"
 )
