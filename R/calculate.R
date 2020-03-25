@@ -491,9 +491,10 @@ calculate.dd = function(index.op.dt,
 #' @param cropped.admission.end.col.name Character name of the column with
 #'   admission end dates that do not go outside the DAOH period (Default:
 #'   'cropped.admission.end')
-#' @param daoh.period.end.col.name Character name of the column that will be
-#'   generated in index.op.dt to contain the end of each DAOH period (Default:
-#'   'daoh.period.end')
+#' @param daoh.period.start.col.name Character name of the column in index.op.dt
+#'   with the start of each DAOH period (Default: 'daoh.period.start')
+#' @param daoh.period.end.col.name Character name of the column in index.op.dt
+#'   with the end of each DAOH period (Default: 'daoh.period.end')
 #' @param dod.col.name Character name of the column that contains date of death
 #'   in the patient.dt (Default: 'dod.col.name')
 #'

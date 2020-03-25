@@ -47,9 +47,11 @@ admission start dates that do not go outside the DAOH period (Default:
 admission end dates that do not go outside the DAOH period (Default:
 'cropped.admission.end')}
 
-\item{daoh.period.end.col.name}{Character name of the column that will be
-generated in index.op.dt to contain the end of each DAOH period (Default:
-'daoh.period.end')}
+\item{daoh.period.start.col.name}{Character name of the column in index.op.dt
+with the start of each DAOH period (Default: 'daoh.period.start')}
+
+\item{daoh.period.end.col.name}{Character name of the column in index.op.dt
+with the end of each DAOH period (Default: 'daoh.period.end')}
 
 \item{dod.col.name}{Character name of the column that contains date of death
 in the patient.dt (Default: 'dod.col.name')}
