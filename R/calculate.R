@@ -40,6 +40,7 @@ prune.events.to.period = function(index.op.dt,
                                   daoh.period.start.col.name = 'daoh.period.start',
                                   daoh.period.end.col.name = 'daoh.period.end') {
   
+  
   #Generate DAOH limits
   data.table::set(x = index.op.dt,
                   j = daoh.period.start.col.name,
@@ -320,6 +321,17 @@ consolidate.events = function(index.op.dt,
                               daoh.period.end.col.name = 'daoh.period.end',
                               dod.col.name = 'DOD') {
   
+  #Could check all the input one day.
+  if (!patient.id.col.name %in% names(index.op.dt)) {
+    stop(paste('patient.id.col.name: ', patient.id.col.name, 'does not exist in index.op.dt.'))
+  }
+    if (!patient.id.col.name %in% names(event.dt)) {
+    stop(paste('patient.id.col.name: ', patient.id.col.name, 'does not exist in index.op.dt.'))
+  }
+  if (!patient.id.col.name %in% names(patient.dt)) {
+    stop(paste('patient.id.col.name: ', patient.id.col.name, 'does not exist in patient.dt'))
+  }
+  
   
   daoh.event.dt = prune.events.to.period(index.op.dt = index.op.dt,
                                          daoh.limits = daoh.limits,
@@ -455,14 +467,13 @@ calculate.dd = function(index.op.dt,
                   i = which((index.op.dt[,get(dod.col.name) > get(daoh.period.end.col.name)])),
                   j = dod.col.name,
                   value = NA)
-  
   #Calculate days dead for each index event
   data.table::set(x = index.op.dt,
                   j = 'dd',
                   value = index.op.dt[,fifelse(is.na(get(dod.col.name)),
                                                yes = 0,
                                                as.numeric(get(daoh.period.end.col.name) - get(dod.col.name) + 1))])
-  
+
   return(index.op.dt)
 }
 
@@ -514,24 +525,27 @@ calculate.daoh = function(index.op.dt,
                           daoh.period.start.col.name = 'daoh.period.start',
                           daoh.period.end.col.name = 'daoh.period.end',
                           dod.col.name = 'DOD') {
-  
+
   
   index.op.dt = calculate.dih(index.op.dt = index.op.dt,
                               daoh.event.dt = daoh.event.dt,
                               index.event.id.col.name = index.event.id.col.name,
                               cropped.admission.start.col.name = cropped.admission.start.col.name,
                               cropped.admission.end.col.name = cropped.admission.end.col.name)
-  
-  
+
   index.op.dt = calculate.dd(index.op.dt = index.op.dt,
                              patient.dt = patient.dt,
                              index.event.id.col.name = index.event.id.col.name,
                              patient.id.col.name = patient.id.col.name,
                              dod.col.name = dod.col.name,
                              daoh.period.end.col.name = daoh.period.end.col.name)
+
+
   
   #Calculate DAOH
   data.table::set(x = index.op.dt,
                   j = 'daoh',
                   value = index.op.dt[,(get(daoh.period.end.col.name)-get(daoh.period.start.col.name)+1) - (dd + dih)])
+
+  return(index.op.dt)
 }

@@ -3,7 +3,8 @@
 \name{convert.date.cols}
 \alias{convert.date.cols}
 \title{Convert dates of relevant columns by reference, so as not to copy big-as
-tables (i.e. doesn't return anything, modifies the input.)}
+tables (i.e. doesn't return anything, modifies the input.)
+Should be able to detect automatically if date.cos is false}
 \usage{
 convert.date.cols(input.dt, date.cols, fmat = "\%Y-\%m-\%d")
 }
@@ -15,4 +16,5 @@ convert.date.cols(input.dt, date.cols, fmat = "\%Y-\%m-\%d")
 \description{
 Convert dates of relevant columns by reference, so as not to copy big-as
 tables (i.e. doesn't return anything, modifies the input.)
+Should be able to detect automatically if date.cos is false
 }
