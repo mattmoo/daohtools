@@ -7,12 +7,12 @@ tables (i.e. doesn't return anything, modifies the input.) This one uses
 fasttime, which is a lot faster (...) if you've got big big data. However,
 times need to be in a specific format.}
 \usage{
-convert.date.cols.fasttime(input.dt, date.cols)
+convert.date.cols.fasttime(input.dt, date.col.names)
 }
 \arguments{
 \item{input.dt}{The DAOH data with date columns}
 
-\item{date.cols}{The columns to convert.}
+\item{date.col.names}{The columns to convert.}
 }
 \description{
 Convert dates of relevant columns by reference, so as not to copy big-as

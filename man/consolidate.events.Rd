@@ -6,7 +6,7 @@
 other or patient death, and do not go outside the DAOH period. These events
 will be suitable for calculating DAOH.}
 \usage{
-consolidate.events(
+\method{consolidate}{events}(
   index.op.dt,
   event.dt,
   patient.dt,
@@ -59,7 +59,7 @@ generated in index.op.dt to contain the end of each DAOH period (Default:
 'daoh.period.end')}
 
 \item{dod.col.name}{Character name of the column that contains date of death
-in the patient.dt (Default: 'dod.col.name')}
+in the patient.dt (Default: 'DOD')}
 }
 \value{
 A data.table with patient identifier, index event identifier, and all

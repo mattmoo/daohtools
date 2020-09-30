@@ -4,10 +4,18 @@
 \alias{plot.daoh.density}
 \title{Plot DAOH in a density chart}
 \usage{
-\method{plot}{daoh.density}(input.dt, by.group = NA_character_, xlimits = c(0, 90), adjust = 1.5)
+\method{plot}{daoh.density}(
+  input.dt,
+  daoh.col.name = "daoh",
+  by.group = NA_character_,
+  xlimits = c(-0.5, 90.5),
+  adjust = 1.5
+)
 }
 \arguments{
 \item{input.dt}{The DAOH data (with daoh column)}
+
+\item{daoh.col.name}{Name of DAOH column}
 
 \item{by.group}{The group (string) by which to separate the histograms.}
 

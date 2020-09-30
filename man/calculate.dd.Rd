@@ -34,7 +34,7 @@ generated in index.op.dt to contain the end of each DAOH period (Default:
 'daoh.period.end')}
 
 \item{dod.col.name}{Character name of the column that contains date of death
-in the patient.dt (Default: 'dod.col.name')}
+in the patient.dt (Default: 'DOD')}
 
 \item{daoh.limits}{Numeric vector of length two with DAOH start and end
 relative to the index event.}

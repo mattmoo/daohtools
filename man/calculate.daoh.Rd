@@ -54,7 +54,7 @@ with the start of each DAOH period (Default: 'daoh.period.start')}
 with the end of each DAOH period (Default: 'daoh.period.end')}
 
 \item{dod.col.name}{Character name of the column that contains date of death
-in the patient.dt (Default: 'dod.col.name')}
+in the patient.dt (Default: 'DOD')}
 }
 \value{
 A data.table that is index.op.dt, but with columns for days dead,

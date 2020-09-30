@@ -201,7 +201,7 @@ detect.overlapping.events = function(daoh.event.dt,
 #'   generated in index.op.dt to contain the end of each DAOH period (Default:
 #'   'daoh.period.end')
 #' @param dod.col.name Character name of the column that contains date of death
-#'   in the patient.dt (Default: 'dod.col.name')
+#'   in the patient.dt (Default: 'DOD')
 #' @param merge.event.id.col.name Character name of the column that was
 #'   populated with unique identifiers of overlapping events by
 #'   detect.overlapping.events (Default: 'merge.event.id')
@@ -301,13 +301,13 @@ merge.and.crop.events = function(daoh.event.dt,
 #'   generated in index.op.dt to contain the end of each DAOH period (Default:
 #'   'daoh.period.end')
 #' @param dod.col.name Character name of the column that contains date of death
-#'   in the patient.dt (Default: 'dod.col.name')
+#'   in the patient.dt (Default: 'DOD')
 #'   
 #' @return A data.table with patient identifier, index event identifier, and all
 #'   admissions found within the DAOH period of that index event, cropped so
 #'   that they are not outside the DAOH limits, or overlapping patient death.
 #'
-#' @export
+#' @export consolidate.events
 consolidate.events = function(index.op.dt,
                               event.dt,
                               patient.dt,
@@ -417,8 +417,16 @@ calculate.dih = function(index.op.dt,
   setkeyv(index.op.dt, index.event.id.col.name)
   setkeyv(daoh.event.dt, index.event.id.col.name)
   index.op.dt = data.table::merge.data.table(x = index.op.dt,
-                                             y = daoh.event.dt[,.(dih = as.numeric(sum(dih))),by=index.event.id.col.name])
+                                             y = daoh.event.dt[,.(dih = as.numeric(sum(dih))),by=index.event.id.col.name],
+                                             all.x = TRUE)
   
+  
+  data.table::set(x = index.op.dt,
+                  i = which(index.op.dt[,is.na(dih)]),
+                  j = 'dih',
+                  value = 0)
+  
+
   return(index.op.dt)
 }
 
@@ -441,7 +449,7 @@ calculate.dih = function(index.op.dt,
 #'   generated in index.op.dt to contain the end of each DAOH period (Default:
 #'   'daoh.period.end')
 #' @param dod.col.name Character name of the column that contains date of death
-#'   in the patient.dt (Default: 'dod.col.name')
+#'   in the patient.dt (Default: 'DOD')
 #'
 #' @return A data.table that is index.op.dt, but with a column named 'dih' (days
 #'   in hospital). The input index.op.dt will be modified by reference, so it's
@@ -507,7 +515,7 @@ calculate.dd = function(index.op.dt,
 #' @param daoh.period.end.col.name Character name of the column in index.op.dt
 #'   with the end of each DAOH period (Default: 'daoh.period.end')
 #' @param dod.col.name Character name of the column that contains date of death
-#'   in the patient.dt (Default: 'dod.col.name')
+#'   in the patient.dt (Default: 'DOD')
 #'
 #' @return A data.table that is index.op.dt, but with columns for days dead,
 #'   days in hospital, and days alive and out of hospital (dd, dih, daoh). The
@@ -526,26 +534,25 @@ calculate.daoh = function(index.op.dt,
                           daoh.period.end.col.name = 'daoh.period.end',
                           dod.col.name = 'DOD') {
 
-  
   index.op.dt = calculate.dih(index.op.dt = index.op.dt,
                               daoh.event.dt = daoh.event.dt,
                               index.event.id.col.name = index.event.id.col.name,
                               cropped.admission.start.col.name = cropped.admission.start.col.name,
                               cropped.admission.end.col.name = cropped.admission.end.col.name)
-
+  
   index.op.dt = calculate.dd(index.op.dt = index.op.dt,
                              patient.dt = patient.dt,
                              index.event.id.col.name = index.event.id.col.name,
                              patient.id.col.name = patient.id.col.name,
                              dod.col.name = dod.col.name,
                              daoh.period.end.col.name = daoh.period.end.col.name)
-
+  
 
   
   #Calculate DAOH
   data.table::set(x = index.op.dt,
                   j = 'daoh',
                   value = index.op.dt[,(get(daoh.period.end.col.name)-get(daoh.period.start.col.name)+1) - (dd + dih)])
-
+  
   return(index.op.dt)
 }

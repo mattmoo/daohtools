@@ -56,49 +56,144 @@ plot.daoh.histogram = function(input.dt, by.group = NA_character_, xlimits = c(0
 #' Plot DAOH in a density chart
 #'
 #' @param input.dt The DAOH data (with daoh column)
+#' @param daoh.col.name Name of DAOH column
 #' @param by.group The group (string) by which to separate the histograms.
 #' @param xlimits Length two numeric vector of xlimits..
 #' 
 #' @return ggplot2 plot
 #'
 #' @export plot.daoh.density
-plot.daoh.density = function(input.dt, by.group = NA_character_, xlimits = c(0,90), adjust = 1.5) {
+plot.daoh.density = function(input.dt, 
+                             daoh.col.name = 'daoh',
+                             by.group = NA_character_, 
+                             xlimits = c(-0.5,90.5), 
+                             adjust = 1.5) {
   
   
-  ybreaks =  c(0, 0.001, 0.0025,0.005,0.01,0.02,0.03,0.04,0.05,0.075,seq(from=0.1, to = .5, by = 0.05),seq(from=0.6, to = 1, by = 0.1))
-  NRPercent <- function(x) {
-    paste0(sapply(x, scales::percent_format(accuracy = 0.1)))
-  }
+  # ybreaks =  c(0, 0.001, 0.0025,0.005,0.01,0.02,0.03,0.04,0.05,0.075,seq(from=0.1, to = .5, by = 0.05),seq(from=0.6, to = 1, by = 0.1))
+  # NRPercent <- function(x) {
+  #   paste0(sapply(x, scales::percent_format(accuracy = 0.1)))
+  # }
+  # transformed.y.scale = ggplot2::scale_y_continuous(trans=scales::trans_new("mysqrt",
+  #                                                                           transform = base::sqrt,
+  #                                                                           inverse = function(x) ifelse(x<0, 0, x^2),
+  #                                                                           domain = c(0, Inf)),
+  #                                                   label = NRPercent,
+  #                                                   minor_breaks = NULL,
+  #                                                   breaks = ybreaks,
+  #                                                   expand = c(0.001, 0.001))
+  # 
+  # x.breaks =  seq(xlimits[1],xlimits[2],by=15)
+  # x.scale = ggplot2::scale_x_continuous(breaks = x.breaks, expand = c(0.01, 0.1), limits = xlimits)
+  # 
+  # if (!is.na(by.group)) {
+  #   p = ggplot2::ggplot(input.dt, ggplot2::aes(x=daoh, fill=stringr::str_to_title(get(by.group)), colour = stringr::str_to_title(get(by.group)))) +
+  #     ggplot2::geom_density(aes(y=..density.., linetype = stringr::str_to_title(get(by.group))), alpha=0.03, adjust = adjust, size = 0.5) +
+  #     scale_colour_brewer(palette = 'Set1', direction = -1, name = by.group) +
+  #     scale_fill_brewer(palette = 'Set1', direction = -1, name = by.group) +
+  #     scale_linetype_manual(values = c("dashed", "solid"), name = by.group)
+  # } else {
+  #   p = ggplot2::ggplot(input.dt, ggplot2::aes(x=daoh, y=2*(..density..)/sum(..density..))) +
+  #     ggplot2::geom_density(aes(y=..density..), alpha=0.03, adjust = adjust, size = 0.5)
+  # }
+  # 
+  # p = p +
+  #   x.scale +
+  #   transformed.y.scale + 
+  #   labs(x = 'Days alive and out of hospital', y = 'Density (square-root transform)') + 
+  #   guides(fill=guide_legend(title=stringr::str_to_title(by.group)),
+  #          linetype=guide_legend(title=stringr::str_to_title(by.group)),
+  #          colour=guide_legend(title=stringr::str_to_title(by.group)))
+  
+  ybreaks =  c(
+    0,
+    0.001,
+    0.0025,
+    0.005,
+    0.01,
+    0.02,
+    0.03,
+    0.04,
+    0.05,
+    0.075,
+    seq(from = 0.1, to = .5, by = 0.05),
+    seq(from = 0.6, to = 1, by = 0.1)
+  )
   transformed.y.scale = ggplot2::scale_y_continuous(trans=scales::trans_new("mysqrt",
                                                                             transform = base::sqrt,
                                                                             inverse = function(x) ifelse(x<0, 0, x^2),
                                                                             domain = c(0, Inf)),
-                                                    label = NRPercent,
+                                                    labels = scales::percent_format(accuracy = 0.01),
                                                     minor_breaks = NULL,
                                                     breaks = ybreaks,
                                                     expand = c(0.001, 0.001))
   
-  x.breaks =  seq(xlimits[1],xlimits[2],by=15)
+  x.breaks =  seq(0,720,by=10)
   x.scale = ggplot2::scale_x_continuous(breaks = x.breaks, expand = c(0.01, 0.1), limits = xlimits)
   
+  p = ggplot(input.dt,
+             aes(
+               x = get(daoh.col.name),
+               y = stat(density))) +
+    
+    x.scale +
+    transformed.y.scale +
+    labs(x = 'Days alive and out of hospital (90 days)', y = 'Percentage of group')
+  
   if (!is.na(by.group)) {
-    p = ggplot2::ggplot(input.dt, ggplot2::aes(x=daoh, fill=stringr::str_to_title(get(by.group)), colour = stringr::str_to_title(get(by.group)))) +
-      ggplot2::geom_density(aes(y=..density.., linetype = stringr::str_to_title(get(by.group))), alpha=0.03, adjust = adjust, size = 0.5) +
-      scale_colour_brewer(palette = 'Set1', direction = -1, name = by.group) +
-      scale_fill_brewer(palette = 'Set1', direction = -1, name = by.group) +
-      scale_linetype_manual(values = c("dashed", "solid"), name = by.group)
+    p = p +
+      geom_histogram(
+        aes(
+          fill = get(by.group),
+          colour = get(by.group),
+          linetype = get(by.group)
+        ),
+        alpha = .1,
+        position = 'identity',
+        size = 0,
+        binwidth = 1
+      ) +
+      scale_colour_manual(values = yarrr::transparent(as.vector(yarrr::piratepal(palette = "google"))[c(4, 2)],
+                                                      trans.val = 0.5),
+                          name = by.group) +
+      ggnewscale::new_scale_colour() +
+      geom_density(
+        aes(
+          fill = get(by.group),
+          colour = get(by.group),
+          linetype = get(by.group)
+        ),
+        adjust = adjust,
+        size = .75,
+        alpha = 0.25
+      ) +
+      scale_colour_manual(values = as.vector(yarrr::piratepal(palette = "google"))[c(4,2)], name = by.group) +
+      scale_fill_manual(values = as.vector(yarrr::piratepal(palette = "google"))[c(4,2)], name = by.group) +
+      scale_linetype_manual(values = c("solid", "dashed"), name = by.group)
+      
   } else {
-    p = ggplot2::ggplot(input.dt, ggplot2::aes(x=daoh, y=2*(..density..)/sum(..density..))) +
-      ggplot2::geom_density(aes(y=..density..), alpha=0.03, adjust = adjust, size = 0.5)
+    p = p +
+      geom_histogram(
+        alpha = .5,
+        position = 'identity',
+        size = 0,
+        binwidth = 1
+      ) +
+      geom_density(
+        adjust = adjust,
+        size = .75,
+        alpha = 0.25
+      )
   }
   
-  p = p +
-    x.scale +
-    transformed.y.scale + 
-    labs(x = 'Days alive and out of hospital', y = 'Density (square-root transform)') + 
-    guides(fill=guide_legend(title=stringr::str_to_title(by.group)),
-           linetype=guide_legend(title=stringr::str_to_title(by.group)),
-           colour=guide_legend(title=stringr::str_to_title(by.group)))
+    # scale_colour_discrete(palette = 'Dark2',
+    # direction = 1,
+    #                     name = by.group) +
+    # scale_fill_brewer(palette = 'Set2',
+    #                   direction = 1,
+    #                   name = by.group)
+  
+  return(p)
 }
 
 #' Plot the distribution by drawing from it heaps.

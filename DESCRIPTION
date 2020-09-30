@@ -16,5 +16,10 @@ Depends:
 Imports: 
   data.table (>= 1.12.0),
   fasttime (>= 1.0.2),
-  safer (>= 0.2.1)
-RoxygenNote: 7.1.0
+  safer (>= 0.2.1),
+  quantreg,
+  dummies,
+  yarrr,
+  ggnewscale,
+  scales
+RoxygenNote: 7.1.1

@@ -48,10 +48,6 @@ encrypt.col = function(input.file.path,
   
   time.stamp = format(Sys.time(), "%Y-%m-%d-%H%M%S")
   
-  #Prompt for password if not provided.
-  if (is.null(password)) {
-    password = readline(prompt="Enter password: ")
-  }
   
   #Set output of encrypted data to same as input if another directory is not provided.
   if (is.null(lookup.save.dir)) {
@@ -96,6 +92,11 @@ encrypt.col = function(input.file.path,
     if (length(col.names) == 0) {
       return()
     }
+  }
+  
+  #Prompt for password if not provided.
+  if (is.null(password)) {
+    password = readline(prompt="Enter password for encrypting column: ")
   }
   
   for (col.name in col.names) {

@@ -6,12 +6,12 @@
 tables (i.e. doesn't return anything, modifies the input.)
 Should be able to detect automatically if date.cos is false}
 \usage{
-convert.date.cols(input.dt, date.cols, fmat = "\%Y-\%m-\%d")
+convert.date.cols(input.dt, date.col.names, fmat = NULL)
 }
 \arguments{
 \item{input.dt}{The DAOH data with date columns}
 
-\item{date.cols}{The columns to convert.}
+\item{date.col.names}{The columns to convert.}
 }
 \description{
 Convert dates of relevant columns by reference, so as not to copy big-as
