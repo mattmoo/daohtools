@@ -13,33 +13,50 @@ plot.daoh.histogram = function(input.dt, by.group = NA_character_, xlimits = c(0
   #Graph display properties
   figureTextSize = 12
   histogramBins = xlimits[1] - xlimits[0] + 1
-  NRPercent <- function(x) {
-    paste0(sapply(x, scales::percent_format(accuracy = 0.1)))
-  }
 
-  ybreaks =  c(0, 0.001, 0.0025,0.005,0.01,0.02,0.03,0.04,0.05,0.075,seq(from=0.1, to = 1, by = 0.05))
-  transformed.y.scale = ggplot2::scale_y_continuous(trans=scales::trans_new("mysqrt",
-                                                                            transform = base::sqrt,
-                                                                            inverse = function(x) ifelse(x<0, 0, x^2),
-                                                                            domain = c(0, Inf)),
-                                                    labels = NRPercent,
-                                                    minor_breaks = NULL,
-                                                    breaks = ybreaks,
-                                                    expand = c(0.001, 0.001))
+  
+  y.scale.labels = function(x)
+    sprintf("%0.2g%%", round(x * 100, digits = 5))
+  ybreaks =  c(0,
+               0.001,
+               0.0025,
+               0.005,
+               0.01,
+               0.02,
+               0.03,
+               0.04,
+               0.05,
+               0.075,
+               seq(from = 0.1, to = 1, by = 0.05))
 
-  x.breaks =  seq(xlimits[1],xlimits[2],by=15)
-  x.scale = ggplot2::scale_x_continuous(breaks = x.breaks, expand = c(0.01, 0.1), limits = xlimits)
-
-
+  transformed.y.scale = scale_y_sqrt(
+    labels = y.scale.labels,
+    minor_breaks = NULL,
+    breaks = ybreaks,
+    expand = c(0.001, 0.001),
+    limits = c(0, .25)
+  )
+  
+  x.breaks =  seq(xlimits[1], xlimits[2], by = 15)
+  x.scale = ggplot2::scale_x_continuous(breaks = x.breaks,
+                                        expand = c(0.01, 0.1),
+                                        limits = xlimits)
+  
+  
   if (!is.na(by.group)) {
-    p = ggplot2::ggplot(input.dt, ggplot2::aes(x=daoh, fill=get(by.group), y=((..count..)/sum(..count..)))) +
-      ggplot2::geom_histogram(alpha=.35,
-                              position="identity",
-                              bins=histogramBins)
+    p = ggplot2::ggplot(input.dt, ggplot2::aes(
+      x = daoh,
+      fill = get(by.group),
+      y = ((..count..) / sum(..count..))
+    )) +
+      ggplot2::geom_histogram(alpha = .35,
+                              position = "identity",
+                              bins = histogramBins)
   } else {
-    p = ggplot2::ggplot(input.dt, ggplot2::aes(x=daoh, y=((..count..)/sum(..count..)))) +
-      ggplot2::geom_histogram(alpha=.75,
-                              position="identity",
+    p = ggplot2::ggplot(input.dt, ggplot2::aes(x = daoh, y = ((..count..) /
+                                                                sum(..count..)))) +
+      ggplot2::geom_histogram(alpha = .75,
+                              position = "identity",
                               bins=histogramBins)
   }
 
