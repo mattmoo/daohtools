@@ -218,3 +218,207 @@ risk.adjust.on.quantreg.model = risk.adjust.quantreg = function(input.dt,
   
   return(input.dt)
 }
+
+#' Functions for generating the data needed for adjustment.
+#'
+#' Creates a number of risk groups from a regression model. Higher risk groups
+#' are more likely to score highly in the model, and vice versa.
+#'
+#' @param input.df A data.frame with the columns from the regression model.
+#' @param model The regression model, should be compatible with base::predict
+#' @param n.groups Number of groups to generate.
+#' @param riskgp.level.name.suffix Suffix to place after the number of the risk
+#'   group (default: '')
+#'
+#' @return A vector of risk groups in the same order as the rows of input.df.
+#'   Higher risk groups are more likely to score highly in the model, and vice
+#'   versa. Groups will be names e.g. '01' + riskgp.level.name.suffix
+#' @export
+#'
+generate.riskgp.vector = function(input.df,
+                                  model,
+                                  n.groups,
+                                  riskgp.level.name.suffix = '') {
+  # Generate pred probabilities for each person and then assign to ordered groups
+  predicted <- predict(model, newdata = input.df)
+  # Can adjust the rounding level to increase or decrease the total number of
+  # groups - we usually aim for ~10 but if there's not much difference in the
+  # predicted values (small model) then it might be hard to get 10 want to try
+  # avoid centers having 0 people in lots of risk groups - similar problems to
+  # direct standardisation
+  
+  # Could maybe make this faster using data.table frank, but it's not very slow
+  # anyway.
+  riskgp <-
+    ceiling(10 * rank(n.groups * predicted, ties = "random") / nrow(input.df))
+  # riskgp<-round(rank(df$p,ties="random"),-4)
+  
+  fmt.string = paste0('%0', nchar(as.character(n.groups)), 'd')
+  
+  riskgp = sprintf(fmt = paste0(fmt.string, riskgp.level.name.suffix), riskgp)
+  
+  return(riskgp)
+}
+
+#' Generates risk group columns.
+#'
+#' Generates risk group columns from a list of models and inserts them as
+#' reference. Component columns for each model will named with a common prefix,
+#' followed by the name of that value in model.list, and an overall risk group.
+#'
+#' @param input.dt Input data.table, will be modified by reference.
+#' @param model.list Models to risk adjust on, columns will be given the suffix
+#'   of the name of the corresponding list value. Will be coerced to list if not
+#'   provided (which may mess with naming, e.g. providing a single would result
+#'   in a list with no name).
+#' @param riskgp.col.name What should the risk group column be called? (And what
+#'   should component columns start with?). (default: 'riskgp').
+#' @param n.groups Number of groups to generate per risk factor (default: 10)
+#'
+#' @return The modified input.dt with length(model.list)+1 extra columns,
+#'   unnecessary to use it as it will be modified by reference. Column
+#'   riskgp.col.name will be a factor, designed to use in the generate.weights
+#'   function.
+#' @export
+#'
+#' @examples
+generate.dra.riskgp.columns = function(input.dt,
+                                   model.list,
+                                   riskgp.col.name = 'riskgp',
+                                   n.groups = 10) {
+  
+  if (!is.list(model.list)) {
+    model.list = list(model.list)
+  }
+  model.names = names(model.list)
+  col.names = paste0(riskgp.col.name, model.names)
+  
+  
+  # Go through and create component columns
+  for (model.ind in 1:length(model.list)) {
+    
+    model = model.list[[model.ind]]
+    model.name = model.names[[model.ind]]
+    col.name = col.names[[model.ind]]
+    
+    data.table::set(x = input.dt,
+                    j = col.name,
+                    value = generate.riskgp.vector(
+                      input.df = risk.adjusted.regression.dt,
+                      model = model,
+                      riskgp.level.name.suffix = model.name,
+                      n.groups = n.groups
+                    ))
+    
+  }
+  
+  # Create overall risk group column.
+  data.table::set(x = input.dt,
+                  j = riskgp.col.name,
+                  value = interaction(input.dt[, col.names, with = FALSE], sep = ':'))
+  
+  
+  
+  return(input.dt)
+  # risk.adjusted.regression.dt[, riskgp.mortality := generate.riskgp(
+  #   input.df = risk.adjusted.regression.dt,
+  #   model = mort.model,
+  #   riskgp.level.name.suffix = 'MORT'
+  # )]
+  
+}
+
+
+
+#' Generate weights for direct risk adjustment in each risk group reflecting how
+#' likely they are to occur in the provided data. This will add a few columns to
+#' input.dt, might bugger up if you have similarly named ones.
+#'
+#' @param input.dt Input data.table with at least columns group.col.name and
+#'   riskgp.col.name.
+#' @param group.col.name The name of the column that is being adjusted against.
+#' @param riskgp.col.name The name of the risk group column (default: 'riskgp')
+#' @param weight.col.name  The name of the column in output that contains
+#'   weights (default: 'wt')
+#'
+#' @return
+#' @export
+calculate.dra.weights = function(input.dt,
+                                group.col.name,
+                                riskgp.col.name = 'riskgp',
+                                weight.col.name = 'wt') {
+  
+  
+  old.colorder = names(input.dt)
+  
+  # Get number of patients by risk group and group to be adjusted on, then
+  # order.
+  weight.dt = input.dt[,.(pop.N = .N),by = c(riskgp.col.name, group.col.name)][order(get(group.col.name), get(riskgp.col.name))]
+  
+  # Get the proportion of patients in each group overall.
+  weight.dt = data.table:::merge.data.table(x = weight.dt,
+                                            y = input.dt[, .(pop.prob = .N / nrow(input.dt)), by = riskgp.col.name],
+                                            by = riskgp.col.name)
+  
+  # Get the proportion of total patients in each risk group in each group.
+  group.col.name.prob = paste0(group.col.name, '.prob')
+  weight.dt = data.table:::merge.data.table(x = weight.dt,
+                                            y = weight.dt[, .(riskgp = get(riskgp.col.name),
+                                                              group.prob = pop.N / sum(pop.N)), by = group.col.name],
+                                            by = c(group.col.name, 'riskgp'))
+  
+  
+  # Calculate weight.
+  weight.dt[,wt := pop.prob/group.prob]
+  data.table::set(x = weight.dt,
+                  j = weight.col.name,
+                  value = weight.dt[, pop.prob/group.prob])
+  
+  output.dt = merge(
+    x = input.dt,
+    y = weight.dt,
+    by = c(group.col.name, riskgp.col.name)
+  )
+  
+  # Put columns in original order
+  setcolorder(x = output.dt, neworder = old.colorder)
+  
+  return(output.dt)
+}
+
+#' Calculates a GLM for using in the survey direct risk adjustment process.
+#'
+#' @param input.dt Input data.table with all cited columns present.
+#' @param outcome.col.name The outcome column.
+#' @param covariate.col.names A character vector of column names to add to the
+#'   model.
+#' @param outlier.limits Vector air of numeric. Outcomes lower than the first or
+#'   higher than the second will be excluded from the model. Might be a bit
+#'   bizarre for factors (default: c(-Inf, Inf))
+#' @param ... Extra variables to be passed to stats::glm. In particular, you'll
+#'   probably want to specify the family (e.g. binomial(link = 'logit') for
+#'   binary, poisson for length of stay)
+#'
+#' @return A GLM object.
+#' @export
+calculate.dra.risk.adjustment.glm = function(input.dt,
+                                         outcome.col.name,
+                                         covariate.col.names,
+                                         outlier.limits = c(-Inf, Inf),
+                                         ...) {
+  
+  input.dt = input.dt[get(outcome.col.name) >= outlier.limits[1]]
+  input.dt = input.dt[get(outcome.col.name) <= outlier.limits[2]]
+  
+  risk.adjustment.glm = glm(as.formula(paste(
+    outcome.col.name,
+    '~',
+    '(',
+    paste(covariate.col.names, collapse = "+"),
+    ')'
+  )),
+  data = input.dt,
+  ...)
+  
+  return(risk.adjustment.glm)
+}

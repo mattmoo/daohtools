@@ -556,3 +556,15 @@ calculate.daoh = function(index.op.dt,
   
   return(index.op.dt)
 }
+
+#' Calculate standard error, with or without NA
+#'
+#' @param x Numeric vector
+#' @param na.rm Remove NA first
+#'
+#' @return Standard error
+#' @export
+std.err <- function(x, na.rm=FALSE) {
+  if (na.rm) x <- na.omit(x)
+  sqrt(var(x)/length(x))
+}
