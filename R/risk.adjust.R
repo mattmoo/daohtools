@@ -281,7 +281,6 @@ generate.riskgp.vector = function(input.df,
 #'   function.
 #' @export
 #'
-#' @examples
 generate.dra.riskgp.columns = function(input.dt,
                                    model.list,
                                    riskgp.col.name = 'riskgp',
