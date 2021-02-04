@@ -250,7 +250,7 @@ generate.riskgp.vector = function(input.df,
   # Could maybe make this faster using data.table frank, but it's not very slow
   # anyway.
   riskgp <-
-    ceiling(10 * rank(n.groups * predicted, ties = "random") / nrow(input.df))
+    ceiling(n.groups * rank(n.groups * predicted, ties = "random") / nrow(input.df))
   # riskgp<-round(rank(df$p,ties="random"),-4)
   
   fmt.string = paste0('%0', nchar(as.character(n.groups)), 'd')
@@ -281,11 +281,11 @@ generate.riskgp.vector = function(input.df,
 #'   function.
 #' @export
 #'
-#' @examples
 generate.dra.riskgp.columns = function(input.dt,
-                                   model.list,
-                                   riskgp.col.name = 'riskgp',
-                                   n.groups = 10) {
+                                       model.list,
+                                       riskgp.col.name = 'riskgp',
+                                       n.groups = 10) {
+  
   
   if (!is.list(model.list)) {
     model.list = list(model.list)
@@ -304,7 +304,7 @@ generate.dra.riskgp.columns = function(input.dt,
     data.table::set(x = input.dt,
                     j = col.name,
                     value = generate.riskgp.vector(
-                      input.df = risk.adjusted.regression.dt,
+                      input.df = input.dt,
                       model = model,
                       riskgp.level.name.suffix = model.name,
                       n.groups = n.groups
@@ -320,11 +320,6 @@ generate.dra.riskgp.columns = function(input.dt,
   
   
   return(input.dt)
-  # risk.adjusted.regression.dt[, riskgp.mortality := generate.riskgp(
-  #   input.df = risk.adjusted.regression.dt,
-  #   model = mort.model,
-  #   riskgp.level.name.suffix = 'MORT'
-  # )]
   
 }
 
@@ -344,12 +339,18 @@ generate.dra.riskgp.columns = function(input.dt,
 #' @return
 #' @export
 calculate.dra.weights = function(input.dt,
-                                group.col.name,
-                                riskgp.col.name = 'riskgp',
-                                weight.col.name = 'wt') {
+                                 group.col.name,
+                                 riskgp.col.name = 'riskgp',
+                                 weight.col.name = 'wt',
+                                 include.na = FALSE) {
   
   
   old.colorder = names(input.dt)
+  
+  original.input.dt = copy(input.dt)
+  if (!include.na) {
+    input.dt = input.dt[!is.na(get(group.col.name))]
+  }
   
   # Get number of patients by risk group and group to be adjusted on, then
   # order.
@@ -358,30 +359,46 @@ calculate.dra.weights = function(input.dt,
   # Get the proportion of patients in each group overall.
   weight.dt = data.table:::merge.data.table(x = weight.dt,
                                             y = input.dt[, .(pop.prob = .N / nrow(input.dt)), by = riskgp.col.name],
-                                            by = riskgp.col.name)
+                                            by = riskgp.col.name,
+                                            all.x = TRUE)
   
   # Get the proportion of total patients in each risk group in each group.
   group.col.name.prob = paste0(group.col.name, '.prob')
   weight.dt = data.table:::merge.data.table(x = weight.dt,
                                             y = weight.dt[, .(riskgp = get(riskgp.col.name),
                                                               group.prob = pop.N / sum(pop.N)), by = group.col.name],
-                                            by = c(group.col.name, 'riskgp'))
+                                            by = c(group.col.name, 'riskgp'),
+                                            all.x = TRUE)
   
   
   # Calculate weight.
-  weight.dt[,wt := pop.prob/group.prob]
   data.table::set(x = weight.dt,
                   j = weight.col.name,
                   value = weight.dt[, pop.prob/group.prob])
   
+  
+  
   output.dt = merge(
     x = input.dt,
     y = weight.dt,
-    by = c(group.col.name, riskgp.col.name)
+    by = c(group.col.name, riskgp.col.name),
+    all.x = TRUE
   )
+  
+  
+  if (!include.na) {
+    output.dt = rbindlist(list(output.dt,
+                               original.input.dt[is.na(get(group.col.name))]),
+                          fill = TRUE,
+                          use.names = TRUE)
+  }
   
   # Put columns in original order
   setcolorder(x = output.dt, neworder = old.colorder)
+  
+  if (output.dt[,.N] != original.input.dt[,.N]) {
+    stop('DRA weight input and output row numbers differ.')
+  }
   
   return(output.dt)
 }
