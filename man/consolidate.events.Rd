@@ -6,7 +6,7 @@
 other or patient death, and do not go outside the DAOH period. These events
 will be suitable for calculating DAOH.}
 \usage{
-\method{consolidate}{events}(
+consolidate.events(
   index.op.dt,
   event.dt,
   patient.dt,
