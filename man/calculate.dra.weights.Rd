@@ -10,12 +10,8 @@ calculate.dra.weights(
   input.dt,
   group.col.name,
   riskgp.col.name = "riskgp",
-<<<<<<< HEAD
   weight.col.name = "wt",
   include.na = FALSE
-=======
-  weight.col.name = "wt"
->>>>>>> 27725887bcd078ea62728cba13a625f1549db3ca
 )
 }
 \arguments{

@@ -7,8 +7,9 @@
 \method{plot}{daoh.histogram}(
   input.dt,
   daoh.col.name = "daoh",
-  by.group = NA_character_,
-  xlimits = c(-0.5, 90.5)
+  by.group = NULL,
+  xlimits = c(-0.5, 90.5),
+  y.aes = c("prop", "N")[1]
 )
 }
 \arguments{
@@ -17,6 +18,9 @@
 \item{by.group}{The group (string) by which to separate the histograms.}
 
 \item{xlimits}{Length two numeric vector of xlimits..}
+
+\item{y.aes}{What's on the y-axis. "prop" for proportion per group, "N" for
+frequency. (Default:  c('prop', "N")[1])}
 }
 \value{
 ggplot2 plot

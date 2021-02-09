@@ -58,15 +58,14 @@ plot.daoh.histogram = function(input.dt,
                               size = 0.75)
     # ggplot2::geom_point()
   } else {
-    p = ggplot2::ggplot(input.dt, ggplot2::aes(x = get(daoh.col.name), 
-                                               y = after_stat(density))) +
+    p = ggplot2::ggplot(input.dt, ggplot2::aes(x = get(daoh.col.name), y = after_stat(density))) +
       ggplot2::geom_histogram(alpha = .75,
                               position = "identity",
                               binwidth = 1)
   }
   
-  p = p+
-    # ggplot2::labs(title="Frequency for Overall DAOH") +
+  p = p +
+    ggplot2::labs(title="Frequency for Overall DAOH") +
     ggplot2::labs(x="Days alive and out of hospital", y="Density") +
     x.scale +
     transformed.y.scale +
@@ -296,20 +295,7 @@ plot.daoh.density = function(input.dt,
   return(p)
 }
 
-#' Plot the distribution by drawing from it heaps.
-#'
-#' @param x The values in the distribution
-#' @param prob The probability that the value will be drawn.
-#' @param n The number of points to sample. It actually has to be pretty high
-#'   for DAOH, about 1e8 (10,000,000)
-#'
-#' @return ggplot2 plot
-#'
-#' @export plot.distribution
-plot.distribution = function(x, prob, n = 1e8) {
-  daoh = sample(x = x, prob = prob, size = n, replace = T)
-  p = plot.daoh.histogram(data.table(daoh = daoh))
-}
+
 
 
 #' Plot DAOH barplot.
@@ -327,7 +313,7 @@ plot.distribution = function(x, prob, n = 1e8) {
 #'   frequency. (Default:  c('prop', "N")[1])
 #'
 #' @return A ggplot2 plot.
-#' @export
+#' @export plot.daoh.barplot
 #'
 #' @examples
 plot.daoh.barplot = function(input.summary.dt,
@@ -385,14 +371,7 @@ plot.daoh.barplot = function(input.summary.dt,
       expand = c(0.001, 0.001)
     )
   }
-  
-  
-  # p2 = ggplot(data = summary.dt, aes(x = daoh.riskadj, y = N, fill = SSC)) +
-  #   geom_bar(colour = "black", stat = "identity")
 
-  
-  
-  
   x.major.breaks =  seq(-600, 600, by = 15)
   x.minor.breaks =  seq(-600, 600, by = 5)
   x.scale = ggplot2::scale_x_continuous(breaks = x.major.breaks,
@@ -401,7 +380,6 @@ plot.daoh.barplot = function(input.summary.dt,
                                         limits = xlimits)
   
   if (!is.null(by.group)) {
-    print(by.group)
     p = ggplot(data = input.summary.dt, aes(x = get(daoh.col.name), 
                                              y = get(y.aes), 
                                              fill = get(by.group),
@@ -414,6 +392,7 @@ plot.daoh.barplot = function(input.summary.dt,
       scale_linetype_manual(values = c("blank", "solid"), name = by.group)
     
   } else {
+    
     p = ggplot2::ggplot(input.summary.dt, ggplot2::aes(x = get(daoh.col.name),
                                                        y = get(y.aes))) +
       geom_bar(width = 1, stat = "identity", position = "identity", alpha = 0.75) 
@@ -452,10 +431,10 @@ calculate.summary.dt = function(input.dt,
   summarise.by.cols = c(daoh.col.name, by.group)
   
   if (is.null(weight.col.name)) {
-    summary.dt = pre.post.figure.dt[, .(N = .N), by = summarise.by.cols]
+    summary.dt = input.dt[, .(N = .N), by = summarise.by.cols]
     summary.dt[, prop := N/sum(N), by = by.group]
   } else {
-    summary.dt = pre.post.figure.dt[, .(N = sum(get(weight.col.name))), by = summarise.by.cols]
+    summary.dt = input.dt[, .(N = sum(get(weight.col.name))), by = summarise.by.cols]
     summary.dt[, prop := N/sum(N), by = by.group]
   }
   setorderv(summary.dt, summarise.by.cols)
