@@ -274,24 +274,28 @@ generate.riskgp.vector = function(input.df,
 #' @param riskgp.col.name What should the risk group column be called? (And what
 #'   should component columns start with?). (default: 'riskgp').
 #' @param n.groups Number of groups to generate per risk factor (default: 10)
+#' @param col.prefix.name A character prefix for generated columns, could be
+#'   handy if you are planning on having more than one risk adjustment model.
+#'   (Default: '')
 #'
 #' @return The modified input.dt with length(model.list)+1 extra columns,
 #'   unnecessary to use it as it will be modified by reference. Column
 #'   riskgp.col.name will be a factor, designed to use in the generate.weights
 #'   function.
 #' @export
-#'
+#' 
 generate.dra.riskgp.columns = function(input.dt,
                                        model.list,
                                        riskgp.col.name = 'riskgp',
-                                       n.groups = 10) {
+                                       n.groups = 10,
+                                       col.prefix.name = '') {
   
   
   if (!is.list(model.list)) {
     model.list = list(model.list)
   }
   model.names = names(model.list)
-  col.names = paste0(riskgp.col.name, model.names)
+  col.names = paste0(col.prefix.name, riskgp.col.name, model.names)
   
   
   # Go through and create component columns
@@ -314,7 +318,7 @@ generate.dra.riskgp.columns = function(input.dt,
   
   # Create overall risk group column.
   data.table::set(x = input.dt,
-                  j = riskgp.col.name,
+                  j = paste0(col.prefix.name, riskgp.col.name),
                   value = interaction(input.dt[, col.names, with = FALSE], sep = ':'))
   
   
@@ -332,6 +336,9 @@ generate.dra.riskgp.columns = function(input.dt,
 #' @param input.dt Input data.table with at least columns group.col.name and
 #'   riskgp.col.name.
 #' @param group.col.name The name of the column that is being adjusted against.
+#' @param reference.level The level of group.col.name that risk groups will be
+#'   adjusted to reflect. If NULL, it will be the population proportion
+#'   (Default: NULL).
 #' @param riskgp.col.name The name of the risk group column (default: 'riskgp')
 #' @param weight.col.name  The name of the column in output that contains
 #'   weights (default: 'wt')
@@ -340,6 +347,7 @@ generate.dra.riskgp.columns = function(input.dt,
 #' @export
 calculate.dra.weights = function(input.dt,
                                  group.col.name,
+                                 reference.level = NULL,
                                  riskgp.col.name = 'riskgp',
                                  weight.col.name = 'wt',
                                  include.na = FALSE) {
@@ -352,29 +360,38 @@ calculate.dra.weights = function(input.dt,
     input.dt = input.dt[!is.na(get(group.col.name))]
   }
   
+  
   # Get number of patients by risk group and group to be adjusted on, then
   # order.
-  weight.dt = input.dt[,.(pop.N = .N),by = c(riskgp.col.name, group.col.name)][order(get(group.col.name), get(riskgp.col.name))]
+  weight.dt = input.dt[,.(group.N = .N),by = c(riskgp.col.name, group.col.name)][order(get(group.col.name), get(riskgp.col.name))]
   
-  # Get the proportion of patients in each group overall.
+  # Get the proportion of patients in the reference group (or overall average if reference level not provided).
+  if (is.null(reference.level)) {
+    ref.dt = input.dt[, .(reference.prob = .N / nrow(input.dt)), by = riskgp.col.name]
+  } else {
+    ref.dt = input.dt[get(group.col.name) == reference.level, 
+                      .(reference.prob = .N / nrow(input.dt[get(group.col.name) == reference.level])), 
+                      by = riskgp.col.name]
+  }
   weight.dt = data.table:::merge.data.table(x = weight.dt,
-                                            y = input.dt[, .(pop.prob = .N / nrow(input.dt)), by = riskgp.col.name],
+                                            y = ref.dt,
                                             by = riskgp.col.name,
                                             all.x = TRUE)
   
   # Get the proportion of total patients in each risk group in each group.
-  group.col.name.prob = paste0(group.col.name, '.prob')
-  weight.dt = data.table:::merge.data.table(x = weight.dt,
-                                            y = weight.dt[, .(riskgp = get(riskgp.col.name),
-                                                              group.prob = pop.N / sum(pop.N)), by = group.col.name],
-                                            by = c(group.col.name, 'riskgp'),
-                                            all.x = TRUE)
+  group.prob.dt = weight.dt[, .(riskgp = get(riskgp.col.name),
+                                group.prob = group.N / sum(group.N)), by = group.col.name]
+  setnames(group.prob.dt, old = c('riskgp'), new = riskgp.col.name)
   
+  weight.dt = data.table:::merge.data.table(x = weight.dt,
+                                            y = group.prob.dt,
+                                            by = c(riskgp.col.name, group.col.name),
+                                            all.x = TRUE)
   
   # Calculate weight.
   data.table::set(x = weight.dt,
                   j = weight.col.name,
-                  value = weight.dt[, pop.prob/group.prob])
+                  value = weight.dt[, reference.prob/group.prob])
   
   
   
