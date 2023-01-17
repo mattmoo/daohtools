@@ -8,7 +8,8 @@ generate.dra.riskgp.columns(
   input.dt,
   model.list,
   riskgp.col.name = "riskgp",
-  n.groups = 10
+  n.groups = 10,
+  col.prefix.name = ""
 )
 }
 \arguments{
@@ -23,6 +24,10 @@ in a list with no name).}
 should component columns start with?). (default: 'riskgp').}
 
 \item{n.groups}{Number of groups to generate per risk factor (default: 10)}
+
+\item{col.prefix.name}{A character prefix for generated columns, could be
+handy if you are planning on having more than one risk adjustment model.
+(Default: '')}
 }
 \value{
 The modified input.dt with length(model.list)+1 extra columns,

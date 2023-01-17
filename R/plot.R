@@ -325,7 +325,7 @@ plot.daoh.barplot = function(input.summary.dt,
   
   y.lab = ''
   if (y.aes == 'prop') {
-    y.lab = 'Percentage of group'
+    y.lab = 'Proportion (%)'
     
     y.scale.labels = function(x)
       sprintf("%0.2g%%", round(x * 100, digits = 5))
@@ -346,8 +346,8 @@ plot.daoh.barplot = function(input.summary.dt,
       labels = y.scale.labels,
       minor_breaks = NULL,
       breaks = ybreaks,
-      expand = c(0.001, 0.001),
-      limits = c(0, .25)
+      expand = c(0.01, 0.05),
+      limits = c(-0.1, NA)
     )
   }
   if (y.aes == 'N') {
@@ -368,7 +368,7 @@ plot.daoh.barplot = function(input.summary.dt,
     transformed.y.scale = scale_y_sqrt(
       name = y.lab,
       breaks = ybreaks,
-      expand = c(0.001, 0.001)
+      expand = c(0.01, 0.01)
     )
   }
 

@@ -326,7 +326,7 @@ consolidate.events = function(index.op.dt,
     stop(paste('patient.id.col.name: ', patient.id.col.name, 'does not exist in index.op.dt.'))
   }
     if (!patient.id.col.name %in% names(event.dt)) {
-    stop(paste('patient.id.col.name: ', patient.id.col.name, 'does not exist in index.op.dt.'))
+    stop(paste('patient.id.col.name: ', patient.id.col.name, 'does not exist in event.dt.'))
   }
   if (!patient.id.col.name %in% names(patient.dt)) {
     stop(paste('patient.id.col.name: ', patient.id.col.name, 'does not exist in patient.dt'))

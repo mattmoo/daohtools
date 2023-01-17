@@ -1,6 +1,6 @@
 Package: daohtools
 Title: Tools for working with registry data and transforming to days alive and out of hospital (DAOH)
-Version: 0.0.0.9000
+Version: 0.0.0.9100
 Authors@R: 
     person(given = "Matthew",
            family = "Moore",
@@ -18,7 +18,7 @@ Imports:
   fasttime (>= 1.0.2),
   safer (>= 0.2.1),
   quantreg,
-  dummies,
+  fastDummies,
   yarrr,
   ggnewscale,
   scales

@@ -9,6 +9,7 @@ input.dt, might bugger up if you have similarly named ones.}
 calculate.dra.weights(
   input.dt,
   group.col.name,
+  reference.level = NULL,
   riskgp.col.name = "riskgp",
   weight.col.name = "wt",
   include.na = FALSE
@@ -19,6 +20,10 @@ calculate.dra.weights(
 riskgp.col.name.}
 
 \item{group.col.name}{The name of the column that is being adjusted against.}
+
+\item{reference.level}{The level of group.col.name that risk groups will be
+adjusted to reflect. If NULL, it will be the population proportion
+(Default: NULL).}
 
 \item{riskgp.col.name}{The name of the risk group column (default: 'riskgp')}
 

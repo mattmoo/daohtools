@@ -163,11 +163,15 @@ risk.adjust.on.quantreg.model = risk.adjust.quantreg = function(input.dt,
       #Create dummy variables for factors
       print(paste('Dummy variables constructed:', covariate))
       if (is.null(dummy.vars)) {
-        dummy.vars = data.table::data.table(dummies::dummy(covariate,
+        dummy.vars = data.table::data.table(fast::dummy(covariate,
                                                            data = input.dt))
       } else {
-        dummy.vars = cbind(dummy.vars, data.table::data.table(dummy(covariate, 
-                                                                    data = input.dt)))
+        dummy.vars = cbind(dummy.vars,
+                           data.table::data.table(
+                             fastDummies::dummy_cols(.data = input.dt,
+                                                     select_columns = covariate,)
+                           )
+        )
       }
       # #Remove the first dummy variable, as it's a linear combination of the others.
       # dummy.vars[,1 := NULL]
